@@ -23,6 +23,7 @@ from chromadb.utils.embedding_functions.google_embedding_function import (
     GooglePalmEmbeddingFunction,
     GoogleGenerativeAiEmbeddingFunction,
     GoogleVertexEmbeddingFunction,
+    GoogleGeminiEmbeddingFunction,
 )
 from chromadb.utils.embedding_functions.ollama_embedding_function import (
     OllamaEmbeddingFunction,
@@ -83,6 +84,7 @@ _all_classes: Set[str] = {
     "GooglePalmEmbeddingFunction",
     "GoogleGenerativeAiEmbeddingFunction",
     "GoogleVertexEmbeddingFunction",
+    "GoogleGeminiEmbeddingFunction",
     "OllamaEmbeddingFunction",
     "InstructorEmbeddingFunction",
     "JinaEmbeddingFunction",
@@ -145,6 +147,7 @@ known_embedding_functions: Dict[str, Type[EmbeddingFunction]] = {  # type: ignor
     "google_palm": GooglePalmEmbeddingFunction,
     "google_generative_ai": GoogleGenerativeAiEmbeddingFunction,
     "google_vertex": GoogleVertexEmbeddingFunction,
+    "google_gemini": GoogleGeminiEmbeddingFunction,
     "ollama": OllamaEmbeddingFunction,
     "instructor": InstructorEmbeddingFunction,
     "jina": JinaEmbeddingFunction,
@@ -234,6 +237,7 @@ __all__ = [
     "GooglePalmEmbeddingFunction",
     "GoogleGenerativeAiEmbeddingFunction",
     "GoogleVertexEmbeddingFunction",
+    "GoogleGeminiEmbeddingFunction",
     "OllamaEmbeddingFunction",
     "InstructorEmbeddingFunction",
     "JinaEmbeddingFunction",
