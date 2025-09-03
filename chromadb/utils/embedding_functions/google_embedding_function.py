@@ -396,7 +396,7 @@ class GoogleVertexEmbeddingFunction(EmbeddingFunction[Documents]):
 
 
 class GoogleGeminiEmbeddingFunction(EmbeddingFunction[Documents]):
-    """To use this EmbeddingFunction, you must have the google.generativeai Python package installed and have a Gemini API key."""
+    """To use this EmbeddingFunction, you must have the google.genai Python package installed and have a Gemini API key."""
 
     def __init__(
         self,
@@ -424,10 +424,11 @@ class GoogleGeminiEmbeddingFunction(EmbeddingFunction[Documents]):
                 Defaults to "CHROMA_GOOGLE_GEMINI_API_KEY".
         """
         try:
-            import google.generativeai as genai
+            from google import genai
+            from google.genai import types
         except ImportError:
             raise ValueError(
-                "The Google Generative AI python package is not installed. Please install it with `pip install google-generativeai`"
+                "The Google GenAI python package is not installed. Please install it with `pip install google-genai`"
             )
 
         if api_key is not None:
@@ -445,8 +446,8 @@ class GoogleGeminiEmbeddingFunction(EmbeddingFunction[Documents]):
         self.task_type = task_type
         self.output_dimensions = output_dimensions
 
-        genai.configure(api_key=self.api_key)
-        self._genai = genai
+        self._client = genai.Client(api_key=self.api_key)
+        self._types = types
 
     def __call__(self, input: Documents) -> Embeddings:
         """
@@ -463,22 +464,25 @@ class GoogleGeminiEmbeddingFunction(EmbeddingFunction[Documents]):
             raise ValueError("Gemini only supports text documents, not images")
 
         embeddings_list: List[npt.NDArray[np.float32]] = []
-        for text in input:
-            # Build request parameters
-            embed_params = {
-                "model": self.model_name,
-                "content": text,
-            }
-            
-            # Add optional parameters if specified
-            if self.task_type:
-                embed_params["task_type"] = self.task_type
-            if self.output_dimensions:
-                embed_params["output_dimensionality"] = self.output_dimensions
+        
+        # Build config parameters
+        config_params = {}
+        if self.task_type:
+            config_params["task_type"] = self.task_type.lower()
+        if self.output_dimensions:
+            config_params["output_dimensionality"] = self.output_dimensions
 
-            embedding_result = self._genai.embed_content(**embed_params)
+        config = self._types.EmbedContentConfig(**config_params) if config_params else None
+
+        for text in input:
+            # Use the client API similar to Google's example
+            response = self._client.models.embed_content(
+                model=self.model_name,
+                contents=[text],
+                config=config
+            )
             embeddings_list.append(
-                np.array(embedding_result["embedding"], dtype=np.float32)
+                np.array(response.embeddings[0].values, dtype=np.float32)
             )
 
         # Convert to the expected Embeddings type (List[Vector])
